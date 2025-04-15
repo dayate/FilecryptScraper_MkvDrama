@@ -21,8 +21,8 @@ DEFAULT_CONFIG = {
     },
     "extensions": {
         "paths": [
-            "C:\\Users\\Taufik Hidayat\\Project\\AI\\Grok\\refactor_scraper\\Extensions\\uBlock",
-            "C:\\Users\\Taufik Hidayat\\Project\\AI\\Grok\\refactor_scraper\\Extensions\\Adguard",
+            "C:\\Users\\Taufik Hidayat\\Project\\Marathon_Tools\\FilecryptScraper_MKVDrama\\Extensions\\uBlock",
+            "C:\\Users\\Taufik Hidayat\\Project\\Marathon_Tools\\FilecryptScraper_MKVDrama\\Extensions\\Adguard",
         ]
     },
     "logging": {
@@ -34,7 +34,7 @@ DEFAULT_CONFIG = {
     "timeouts": {
         "selector_wait": 10000,
         "popup": 5000,
-        "page_load": 10000,
+        "page_load": 30000,
         "password_check": 5,
         "captcha_check": 5,
         "batch_delay": 1,
