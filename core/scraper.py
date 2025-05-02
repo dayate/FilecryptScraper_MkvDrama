@@ -36,9 +36,9 @@ class FileCryptScraper:
 
     def handle_password(self) -> bool:
         if not self.detect_password():
-            logging.info("[SECURITY] URL tidak membutuhkan password")
+            logging.info("🔓⠀URL tidak membutuhkan password")
             return True
-        logging.info("[SECURITY] Menunggu input password...")
+        logging.info("🔐⠀Menunggu input password...")
         start_time = time.time()
         timeout = self.timeouts["password"]
         while self.detect_password():
@@ -46,7 +46,7 @@ class FileCryptScraper:
                 logging.error(f"[ERROR] Timeout password setelah {timeout} detik")
                 return False
             time.sleep(self.timeouts["password_check"])
-        logging.info("[SECURITY] Password berhasil ditangani")
+        logging.info("🔓⠀Password berhasil ditangani")
         return True
 
     def detect_captcha(self) -> bool:
@@ -58,9 +58,9 @@ class FileCryptScraper:
 
     def handle_captcha(self) -> bool:
         if not self.detect_captcha():
-            logging.info("[SECURITY] CAPTCHA tidak terdeteksi")
+            logging.info("🔓⠀CAPTCHA tidak terdeteksi")
             return True
-        logging.info("[SECURITY] Menunggu penyelesaian CAPTCHA...")
+        logging.info("🔐⠀Menunggu penyelesaian CAPTCHA...")
         start_time = time.time()
         timeout = self.timeouts["captcha"]
         while self.detect_captcha():
@@ -68,7 +68,7 @@ class FileCryptScraper:
                 logging.error(f"[ERROR] Timeout CAPTCHA setelah {timeout} detik")
                 return False
             time.sleep(self.timeouts["captcha_check"])
-        logging.info("[SECURITY] CAPTCHA berhasil diselesaikan")
+        logging.info("🔓⠀CAPTCHA berhasil diselesaikan")
         return True
 
     def get_available_providers(self) -> List[str]:
@@ -279,7 +279,8 @@ class FileCryptScraper:
                             code = item.download_url.split("/")[-1]
                             # Gunakan URL bypass secara bergilir
                             selected_bypass = self.pixeldrain["bypass_urls"][
-                                pixeldrain_bypass_index % len(self.pixeldrain["bypass_urls"])
+                                pixeldrain_bypass_index
+                                % len(self.pixeldrain["bypass_urls"])
                             ]
                             item.bypass_url = selected_bypass.replace("CODE-FILE", code)
                             pixeldrain_bypass_index += 1  # Increment indeks

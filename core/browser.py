@@ -14,7 +14,9 @@ class BrowserManager:
     Kelas untuk mengelola browser dan konteksnya
     """
 
-    def __init__(self, config: BrowserConfig = None, window_size: tuple[int, int] = None):
+    def __init__(
+        self, config: BrowserConfig = None, window_size: tuple[int, int] = None
+    ):
         self.config = config or BrowserConfig(**DEFAULT_CONFIG["browser"])
         self.extensions = DEFAULT_CONFIG["extensions"]
         self.context = None
@@ -35,7 +37,7 @@ class BrowserManager:
             self.context = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=self.config.user_data_dir,
                 headless=self.config.headless,
-                viewport={"width": 800, "height": 600},
+                viewport={"width": 1280, "height": 720},
                 args=[
                     f"--disable-extensions-except={','.join(self.extensions['paths'])}",
                     f"--load-extension={','.join(self.extensions['paths'])}",

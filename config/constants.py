@@ -21,8 +21,8 @@ DEFAULT_CONFIG = {
     },
     "extensions": {
         "paths": [
-            "C:\\Users\\Taufik Hidayat\\Project\\Marathon_Tools\\FilecryptScraper_MKVDrama\\Extensions\\uBlock",
-            "C:\\Users\\Taufik Hidayat\\Project\\Marathon_Tools\\FilecryptScraper_MKVDrama\\Extensions\\Adguard",
+            "C:\\Users\\Taufik Hidayat\\Project\\1. DEVELOPMENT\\Marathon_Tools\\FilecryptScraper_[MKVDrama]\\Extensions\\uBlock",
+            "C:\\Users\\Taufik Hidayat\\Project\\1. DEVELOPMENT\\Marathon_Tools\\FilecryptScraper_[MKVDrama]\\Extensions\\Adguard",
         ]
     },
     "logging": {

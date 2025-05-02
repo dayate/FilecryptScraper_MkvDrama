@@ -15,6 +15,10 @@ import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 from typing import Dict, List, Optional
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+from rich.panel import Panel
 from core.browser import BrowserManager
 from core.scraper import FileCryptScraper
 from core.database import DatabaseHandler
@@ -22,22 +26,39 @@ from core.file_handler import FileHandler
 from core.logger import setup_logging
 from config.constants import DEFAULT_CONFIG
 
+# Inisialisasi rich console
+console = Console()
+
 
 def select_input_method() -> str:
     """Meminta pengguna memilih metode input URL atau cek database"""
-    print("\n 1. Masukkan satu URL langsung")
-    print(" 2. Pilih file berisi daftar URL (.txt)")
-    print(" 3. Cek database")
+    content = (
+        "1. Masukkan satu URL langsung\n"
+        "2. Pilih file berisi daftar URL (.txt)\n"
+        "3. Cek database"
+    )
+    console.print(
+        Panel(
+            content,
+            title="[bold blue]PILIH METODE[/bold blue]",
+            border_style="cyan",
+            expand=True,
+        )
+    )
 
     while True:
         try:
-            choice = input("Masukkan nomor opsi (1-3): ").strip()
+            choice = console.input("Masukkan nomor opsi (1-3): ").strip()
             if choice in ["1", "2", "3"]:
                 return choice
-            print("Opsi tidak valid! Harap masukkan nomor 1, 2, atau 3.")
+            console.print(
+                "⚠️ [yellow]Opsi tidak valid! Harap masukkan nomor 1, 2, atau 3.[/yellow]"
+            )
         except Exception as e:
             logging.error(f"[ERROR] Error memilih metode input: {str(e)}")
-            print("Terjadi error! Harap masukkan nomor 1, 2, atau 3.")
+            console.print(
+                f"❌ [red]Terjadi error! Harap masukkan nomor 1, 2, atau 3.[/red]"
+            )
         time.sleep(1)
 
 
@@ -45,99 +66,115 @@ def get_valid_url() -> str:
     """Meminta satu URL valid dari pengguna"""
     while True:
         try:
-            url = input("Masukkan URL: ").strip()
-            if url.startswith("https://filecrypt.co/Container/") and url.endswith(".html"):
+            url = console.input("Masukkan URL: ").strip()
+            if url.startswith("https://filecrypt.co/Container/") and url.endswith(
+                ".html"
+            ):
                 return url
-            print("URL tidak valid! Harap masukkan URL FileCrypt yang benar.")
+            console.print(
+                "⚠️ [yellow]URL tidak valid! Harap masukkan URL FileCrypt yang benar.[/yellow]"
+            )
         except Exception as e:
-            logging.error(f"[ERROR] Error memasukkan URL: {str(e)}")
-            print("Terjadi error! Harap masukkan URL yang valid.")
+            logging.error(f"❌⠀ Error memasukkan URL: {str(e)}")
+            console.print(
+                f"❌⠀ [red]Terjadi error! Harap masukkan URL yang valid.[/red]"
+            )
         time.sleep(1)
 
 
 def get_urls_from_file() -> List[str]:
     """Membuka file explorer dan membaca URL dari file .txt"""
     root = tk.Tk()
-    root.withdraw()  # Sembunyikan jendela utama tkinter
+    root.withdraw()
     file_path = filedialog.askopenfilename(
-        title="Pilih file .txt berisi URL",
-        filetypes=[("Text files", "*.txt")]
+        title="Pilih file .txt berisi URL", filetypes=[("Text files", "*.txt")]
     )
     root.destroy()
 
     if not file_path:
-        logging.error("[ERROR] Tidak ada file yang dipilih")
-        print("Tidak ada file yang dipilih. Program berhenti.")
+        logging.error("❌⠀ Tidak ada file yang dipilih")
+        console.print("❌⠀ [red]Tidak ada file yang dipilih. Program berhenti.[/red]")
         sys.exit(1)
 
     valid_urls = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
                 url = line.strip()
-                if url.startswith("https://filecrypt.co/Container/") and url.endswith(".html"):
+                if url.startswith("https://filecrypt.co/Container/") and url.endswith(
+                    ".html"
+                ):
                     valid_urls.append(url)
                 else:
                     logging.warning(f"[WARNING] URL tidak valid di file: {url}")
         if not valid_urls:
-            logging.error("[ERROR] Tidak ada URL valid di file")
-            print("Tidak ada URL valid di file. Program berhenti.")
+            logging.error("❌⠀ Tidak ada URL valid di file")
+            console.print(
+                "❌⠀ [red]Tidak ada URL valid di file. Program berhenti.[/red]"
+            )
             sys.exit(1)
         return valid_urls
     except Exception as e:
-        logging.error(f"[ERROR] Gagal membaca file: {str(e)}")
-        print(f"Terjadi error saat membaca file: {str(e)}")
+        logging.error(f"❌⠀ Gagal membaca file: {str(e)}")
+        console.print(f"❌⠀ [red]Terjadi error saat membaca file: {str(e)}[/red]")
         sys.exit(1)
 
 
 def select_output_option() -> str:
     """Meminta pengguna memilih opsi pencetakan output"""
-    print("\n" + "=" * 100)
-    print(" PILIH OPSI FILE OUTPUT ".center(100, "x"))
-    print("=" * 100)
-    print(" 1. Cetak semua data di database")
-    print(" 2. Cetak file individual saja")
-    print(" 3. Cetak keduanya")
-    print(" 4. Simpan data ke database")
+    console.print(
+        Panel(
+            "\n1. Cetak semua data di database \n2. Cetak file individual saja \n3. Cetak keduanya \n4. Simpan data ke database ",
+            title="[bold blue]PILIH OPSI FILE OUTPUT[/bold blue]",
+            border_style="cyan",
+            expand=True,
+        )
+    )
 
     while True:
         try:
-            choice = input("Masukkan nomor opsi (1-4): ").strip()
+            choice = console.input("Masukkan nomor opsi (1-4): ").strip()
             if choice in ["1", "2", "3", "4"]:
                 return choice
-            print("Opsi tidak valid! Harap masukkan nomor 1, 2, 3, atau 4.")
+            console.print(
+                "⚠️ [yellow]Opsi tidak valid! Harap masukkan nomor 1, 2, 3, atau 4.[/yellow]"
+            )
         except Exception as e:
-            logging.error(f"[ERROR] Error memilih opsi pencetakan: {str(e)}")
-            print("Terjadi error! Harap masukkan nomor 1, 2, 3, atau 4.")
+            logging.error(f"❌⠀ Error memilih opsi pencetakan: {str(e)}")
+            console.print(
+                f"❌⠀ [red]Terjadi error! Harap masukkan nomor 1, 2, 3, atau 4.[/red]"
+            )
         time.sleep(1)
 
 
 def process_single_url(url: str) -> tuple[List, str]:
     """Memproses scraping untuk satu URL, mengembalikan scraped_data dan container_title"""
     target_code = url.split("/")[-1].replace(".html", "")
-    logging.info(f"[MAIN] Memulai proses untuk target_code: {target_code}")
+    logging.info(f"⚙⠀ Memulai proses untuk target_code: {target_code}")
 
     with BrowserManager() as browser_manager:
         scraper = None
         try:
-            # Buat halaman baru dengan retry
             for attempt in range(3):
                 try:
                     scraper = FileCryptScraper(browser_manager.context.new_page())
                     break
                 except Exception as e:
-                    logging.warning(f"[WARNING] Gagal membuka halaman baru, mencoba lagi ({attempt + 1}/3): {str(e)}")
+                    logging.warning(
+                        f"[WARNING] Gagal membuka halaman baru, mencoba lagi ({attempt + 1}/3): {str(e)}"
+                    )
                     time.sleep(2)
             else:
                 raise RuntimeError("Gagal membuka halaman baru setelah 3 percobaan")
 
-            # Muat halaman dengan retry
             for attempt in range(3):
                 try:
                     scraper.page.goto(url, wait_until="load", timeout=15000)
                     break
                 except Exception as e:
-                    logging.warning(f"[WARNING] Gagal memuat URL, mencoba lagi ({attempt + 1}/3): {str(e)}")
+                    logging.warning(
+                        f"[WARNING] Gagal memuat URL, mencoba lagi ({attempt + 1}/3): {str(e)}"
+                    )
                     time.sleep(2)
             else:
                 raise RuntimeError("Gagal memuat URL setelah 3 percobaan")
@@ -145,16 +182,17 @@ def process_single_url(url: str) -> tuple[List, str]:
             browser_manager.close_about_blank_tabs()
             time.sleep(1)
 
-            # Tangani keamanan
             if not scraper.handle_password():
                 raise RuntimeError("Gagal menangani password")
             if not scraper.handle_captcha():
                 raise RuntimeError("Gagal menangani CAPTCHA")
 
-            # Ambil info
             title, total_size = scraper.get_additional_info()
-            container_title = title if title and title.strip().lower() not in ("n/a", "unknown", "") else target_code
-            # logging.info(f"[MAIN] Container title untuk target_code {target_code}: {container_title}")
+            container_title = (
+                title
+                if title and title.strip().lower() not in ("n/a", "unknown", "")
+                else target_code
+            )
 
             online_count = sum(
                 1
@@ -175,15 +213,15 @@ def process_single_url(url: str) -> tuple[List, str]:
             providers = scraper.get_available_providers()
             selected_provider = select_provider(providers)
 
-            logging.info(f"[MAIN] Memulai proses scraping untuk target_code: {target_code}")
-            logging.info(f"[MAIN] Total item di halaman: {total_count}")
+            logging.info(f"⚙⠀ Memulai proses scraping untuk target_code: {target_code}")
+            logging.info(f"⚙⠀ Total item di halaman: {total_count}")
             scraped_data = scraper.scrape_file_info(
                 selected_provider=selected_provider,
                 all_providers=providers if not selected_provider else None,
             )
             return scraped_data, container_title
         except Exception as e:
-            logging.error(f"[ERROR] Gagal memproses URL {url}: {str(e)}")
+            logging.error(f"❌⠀ Gagal memproses URL {url}: {str(e)}")
             return [], target_code
         finally:
             if scraper and scraper.page:
@@ -191,7 +229,6 @@ def process_single_url(url: str) -> tuple[List, str]:
                     scraper.page.close()
                 except Exception as e:
                     logging.warning(f"[WARNING] Gagal menutup halaman: {str(e)}")
-            # Tutup semua halaman yang tersisa
             try:
                 for page in browser_manager.context.pages:
                     if not page.is_closed():
@@ -206,8 +243,8 @@ def connect_db(db_name: str) -> Optional[sqlite3.Connection]:
         conn = sqlite3.connect(db_name)
         return conn
     except sqlite3.Error as e:
-        print(f"Error koneksi database: {e}")
-        logging.error(f"[ERROR] Error koneksi database: {str(e)}")
+        console.print(f"❌⠀ [red]Error koneksi database: {e}[/red]")
+        logging.error(f"❌⠀ Error koneksi database: {str(e)}")
         return None
 
 
@@ -216,29 +253,27 @@ def modify_title(title: str) -> str:
     if not title:
         return title
 
-    # Langkah 1: Bersihkan teks yang tidak diinginkan
     patterns_to_remove = [
-        r"\[MkvDrama\.Org\]",  # [MkvDrama.Org]
-        r"\[MkvDrama\.me\]",   # [MkvDrama.me]
-        r"\.mkv\b",            # .mkv
-        r"\.x264\b",           # .x264
-        r"\.1080p\b",          # .1080p
-        r"\.720p\b",           # .720p
-        r"\b.E01\b",            # E01 (standalone, case-sensitive)
+        r"\[MkvDrama\.Org\]",
+        r"\[MkvDrama\.me\]",
+        r"\.mkv\b",
+        r"\.x264\b",
+        r"\.1080p\b",
+        r"\.720p\b",
+        r"\b.E01\b",
     ]
     cleaned_title = title
     for pattern in patterns_to_remove:
         cleaned_title = re.sub(pattern, "", cleaned_title, flags=re.IGNORECASE)
 
-    # Langkah 2: Terapkan regex untuk menangkap hingga S01 dan provider
     match = re.match(r"^(.*?S01)(?:E\d{2})?\.?([A-Z]+)?", cleaned_title.strip())
     if match:
-        base_title = match.group(1)  # Ambil hingga S01
-        provider = match.group(2) or ""  # Ambil provider jika ada
+        base_title = match.group(1)
+        provider = match.group(2) or ""
         return f"{base_title}{'.' + provider if provider else ''}"
 
-    # Kembalikan title yang sudah dibersihkan jika tidak ada pola S01
     return cleaned_title.strip()
+
 
 def sanitize_filename(filename: str) -> str:
     """Mengganti karakter tidak valid untuk nama file, tapi pertahankan titik"""
@@ -249,18 +284,15 @@ def sanitize_filename(filename: str) -> str:
 
 
 def is_sheet_empty(sheet: openpyxl.worksheet.worksheet.Worksheet) -> bool:
-    """Cek apakah sheet kosong (hanya header atau kurang)"""
     return sheet.max_row <= 1
 
 
 def save_to_excel(data: List[tuple], filename: str):
     """Fungsi untuk menyimpan data ke file Excel dengan struktur seperti save_individual_files"""
     try:
-        # Buat folder results
         os.makedirs("results", exist_ok=True)
         filename = os.path.join("results", f"{sanitize_filename(filename)}.xlsx")
 
-        # Buka atau buat workbook
         if os.path.exists(filename):
             wb = openpyxl.load_workbook(filename)
             for sheet_name in wb.sheetnames[:]:
@@ -271,7 +303,6 @@ def save_to_excel(data: List[tuple], filename: str):
             wb = openpyxl.Workbook()
             wb.remove(wb.active)
 
-        # Sheet ALL_PROVIDER_RESULTS
         all_sheet_name = "ALL_PROVIDER_RESULTS"
         if all_sheet_name not in wb.sheetnames:
             all_sheet = wb.create_sheet(all_sheet_name, 0)
@@ -290,7 +321,6 @@ def save_to_excel(data: List[tuple], filename: str):
         else:
             all_sheet = wb[all_sheet_name]
 
-        # Cek entri yang sudah ada di ALL_PROVIDER_RESULTS
         existing_all_entries = set()
         for row in all_sheet.iter_rows(min_row=2, values_only=True):
             if row[1] and row[2] and row[7]:
@@ -302,7 +332,6 @@ def save_to_excel(data: List[tuple], filename: str):
                     )
                 )
 
-        # Tambahkan data baru ke ALL_PROVIDER_RESULTS
         new_all_items = 0
         for item in data:
             item_key = (
@@ -314,34 +343,30 @@ def save_to_excel(data: List[tuple], filename: str):
                 all_sheet.append(
                     [
                         all_sheet.max_row,
-                        item[0],  # title
-                        item[1],  # provider
-                        item[2],  # size
-                        item[3],  # status
-                        item[4],  # download_url
-                        item[5],  # bypass_url
-                        item[6],  # target_code
+                        item[0],
+                        item[1],
+                        item[2],
+                        item[3],
+                        item[4],
+                        item[5],
+                        item[6],
                     ]
                 )
                 existing_all_entries.add(item_key)
                 new_all_items += 1
 
-        # Update nomor urut
         for idx, row in enumerate(all_sheet.iter_rows(min_row=2), 1):
             row[0].value = idx
 
-        # Hapus sheet ALL_PROVIDER_RESULTS jika kosong
         if is_sheet_empty(all_sheet):
             wb.remove(all_sheet)
 
-        # Sheet per provider
-        providers = {item[1] for item in data if item[1]}  # Ambil provider unik
+        providers = {item[1] for item in data if item[1]}
         for provider in providers:
             provider_items = [item for item in data if item[1] == provider]
-            provider_sheet_name = provider[:31]  # Maksimal 31 karakter
+            provider_sheet_name = provider[:31]
             existing_provider_entries = set()
 
-            # Cek entri yang sudah ada di sheet provider
             if provider_sheet_name in wb.sheetnames:
                 provider_sheet = wb[provider_sheet_name]
                 for row in provider_sheet.iter_rows(min_row=2, values_only=True):
@@ -354,7 +379,6 @@ def save_to_excel(data: List[tuple], filename: str):
                             )
                         )
 
-            # Tambahkan data baru ke sheet provider
             provider_new_items = False
             for item in provider_items:
                 item_key = (
@@ -405,15 +429,12 @@ def save_to_excel(data: List[tuple], filename: str):
                         )
                         existing_provider_entries.add(item_key)
 
-                # Update nomor urut
                 for idx, row in enumerate(provider_sheet.iter_rows(min_row=2), 1):
                     row[0].value = idx
 
-                # Hapus sheet provider jika kosong
                 if is_sheet_empty(provider_sheet):
                     wb.remove(provider_sheet)
 
-        # Hapus sheet default atau kosong
         has_data = False
         for sheet_name in wb.sheetnames[:]:
             sheet = wb[sheet_name]
@@ -423,25 +444,24 @@ def save_to_excel(data: List[tuple], filename: str):
                 wb.remove(sheet)
 
         if not has_data or not wb.sheetnames:
-            print("Tidak ada data untuk disimpan.")
+            console.print("⚠️ [yellow]Tidak ada data untuk disimpan.[/yellow]")
             logging.info("[EXCEL] Tidak ada data untuk disimpan ke Excel")
             return
 
         if "Sheet" in wb.sheetnames:
             wb.remove(wb["Sheet"])
 
-        # Atur lebar kolom dan alignment
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             column_widths = {
-                "A": 5,  # No
-                "B": 60,  # Title
-                "C": 15,  # Provider
-                "D": 10,  # Size
-                "E": 15,  # Status
-                "F": 60,  # Download URL
-                "G": 60,  # Bypass URL
-                "H": 15,  # _target_code
+                "A": 5,
+                "B": 60,
+                "C": 15,
+                "D": 10,
+                "E": 15,
+                "F": 60,
+                "G": 60,
+                "H": 15,
             }
             for col, width in column_widths.items():
                 ws.column_dimensions[col].width = width
@@ -449,13 +469,13 @@ def save_to_excel(data: List[tuple], filename: str):
                 for cell in row:
                     cell.alignment = Alignment(wrap_text=True, vertical="top")
 
-        # Simpan file
         wb.save(filename)
+        console.print(f"✅ [white]Data disimpan ke {filename}[/white]")
         logging.info(f"[EXCEL] Data disimpan ke {filename}")
 
     except Exception as e:
-        print(f"Error menyimpan ke Excel: {e}")
-        logging.error(f"[ERROR] Gagal menyimpan ke Excel: {str(e)}")
+        console.print(f"❌⠀ [red]Error menyimpan ke Excel: {e}[/red]")
+        logging.error(f"❌⠀ Gagal menyimpan ke Excel: {str(e)}")
 
 
 def save_all_data():
@@ -464,7 +484,6 @@ def save_all_data():
     if conn:
         try:
             cursor = conn.cursor()
-            # Query untuk mengambil semua data
             cursor.execute(
                 """
                 SELECT title, provider, size, status, download_url, bypass_url, target_code
@@ -474,13 +493,14 @@ def save_all_data():
             rows = cursor.fetchall()
 
             if rows:
-                # Simpan semua data ke RESULT_DATABASE.xlsx
                 save_to_excel(rows, "RESULT_DATABASE")
             else:
-                logging.info("[DB] Tidak ada data di database")
+                console.print("⚠️ [yellow]Tidak ada data di database[/yellow]")
+                logging.info("📥 Tidak ada data di database")
 
         except sqlite3.Error as e:
-            logging.error(f"[ERROR] Error membaca data: {str(e)}")
+            console.print(f"❌⠀ [red]Error membaca data: {e}[/red]")
+            logging.error(f"❌⠀ Error membaca data: {str(e)}")
         finally:
             conn.close()
 
@@ -491,7 +511,6 @@ def display_and_save_by_target_code(target_code: str, modified_title: str):
     if conn:
         try:
             cursor = conn.cursor()
-            # Query untuk mengambil semua kolom berdasarkan target_code
             cursor.execute(
                 """
                 SELECT title, provider, size, status, download_url, bypass_url, target_code
@@ -503,13 +522,16 @@ def display_and_save_by_target_code(target_code: str, modified_title: str):
             rows = cursor.fetchall()
 
             if rows:
-                # Simpan ke Excel tanpa tampilkan di konsol
                 save_to_excel(rows, modified_title)
             else:
-                logging.info(f"[DB] Tidak ada data dengan target_code: {target_code}")
+                console.print(
+                    f"⚠️ [yellow]Tidak ada data dengan target_code: {target_code}[/yellow]"
+                )
+                logging.info(f"📥 Tidak ada data dengan target_code: {target_code}")
 
         except sqlite3.Error as e:
-            logging.error(f"[ERROR] Error membaca data: {str(e)}")
+            console.print(f"❌⠀ [red]Error membaca data: {e}[/red]")
+            logging.error(f"❌⠀ Error membaca data: {str(e)}")
         finally:
             conn.close()
 
@@ -522,7 +544,6 @@ def display_data():
     if conn:
         try:
             cursor = conn.cursor()
-            # Query untuk mengambil satu title per target_code
             cursor.execute(
                 """
                 SELECT MIN(title), target_code
@@ -533,37 +554,37 @@ def display_data():
             rows = cursor.fetchall()
 
             if not rows:
-                print("Tidak ada data di database.")
-                logging.info("[DB] Tidak ada data di database")
+                console.print("⚠️ [yellow]Tidak ada data di database.[/yellow]")
+                logging.info("📥 Tidak ada data di database")
                 return
 
-            # Siapkan data untuk tabel
-            table_data = []
+            table = Table(
+                title=Text(f"Data dari {db_name}", style="bold blue"),
+                show_header=True,
+                header_style="bold cyan",
+            )
+            table.add_column("No", style="cyan", justify="center")
+            table.add_column("Title", style="green")
+            table.add_column("Target Code", style="magenta")
+
             selections = []
             for idx, row in enumerate(rows, 1):
                 title, target_code = row
                 modified_title = modify_title(title)
-                table_data.append([idx, modified_title, target_code])
+                table.add_row(str(idx), modified_title, target_code)
                 selections.append((modified_title, target_code))
 
-            # Tampilkan tabel menggunakan tabulate
-            print("\n" + "=" * 100)
-            print(f"Data dari {db_name}".center(100, "x"))
-            print("=" * 100)
-            print(tabulate(
-                table_data,
-                headers=["No", "Title", "Target Code"],
-                tablefmt="grid",
-                stralign="left",
-                numalign="center"
-            ))
-            print("\n0. Simpan semua data ke RESULT_DATABASE.xlsx")
+            console.print(table)
+            console.print("\n0. Simpan semua data ke RESULT_DATABASE.xlsx")
+            console.print("m. Kembali ke menu utama")
 
-            # Meminta input pilihan dari pengguna
             try:
-                choice = input("\nMasukkan nomor untuk cetak data: ").strip()
+                choice = console.input("\nMasukkan nomor untuk cetak data: ").strip()
                 if choice == "0":
                     save_all_data()
+                elif choice == "m":
+                    logging.debug("Pengguna memilih kembali ke menu utama")
+                    main()
                 else:
                     choice = int(choice)
                     if 1 <= choice <= len(selections):
@@ -572,17 +593,18 @@ def display_data():
                             selected_target_code, selected_title
                         )
                     else:
-                        print("Pilihan tidak valid!")
+                        console.print("⚠️ [yellow]Pilihan tidak valid![/yellow]")
                         logging.warning("[INPUT] Pilihan tidak valid")
             except ValueError:
-                print("Masukkan angka yang valid!")
+                console.print("⚠️ [yellow]Masukkan angka yang valid![/yellow]")
                 logging.warning("[INPUT] Input bukan angka")
 
         except sqlite3.Error as e:
-            print(f"Error membaca data: {e}")
-            logging.error(f"[ERROR] Error membaca data: {str(e)}")
+            console.print(f"❌⠀ [red]Error membaca data: {e}[/red]")
+            logging.error(f"❌⠀ Error membaca data: {str(e)}")
         finally:
             conn.close()
+
 
 def main():
     """Fungsi utama untuk menjalankan scraper"""
@@ -599,27 +621,33 @@ def main():
             urls = get_urls_from_file()
         elif input_method == "3":
             display_data()
-            return  # Keluar setelah menangani cek database
+            return
 
         processed_target_codes = []
         container_titles = {}
         for idx, url in enumerate(urls, 1):
-            logging.info(f"[MAIN] Memproses URL {idx}/{len(urls)}: {url}")
+            logging.debug(f"⚙⠀ Memproses URL {idx}/{len(urls)}: {url}")
+            console.print(f"🚀 [white]Memproses URL {idx}/{len(urls)}: {url}[/white]")
             scraped_data, container_title = process_single_url(url)
 
             if scraped_data:
                 new_items = DatabaseHandler.save_to_sqlite(scraped_data)
-                logging.info(f"[MAIN] Berhasil menyimpan {new_items} item baru")
+                console.print(
+                    f"✅ [white]Berhasil menyimpan {new_items} item baru[/white]"
+                )
                 if new_items == 0:
-                    logging.info(f"[MAIN] Tidak ada item baru")
+                    console.print("⚠️ [yellow]Tidak ada item baru[/yellow]")
+                    logging.debug(f"⚙⠀ Tidak ada item baru")
                 target_code = url.split("/")[-1].replace(".html", "")
                 processed_target_codes.append(target_code)
                 container_titles[target_code] = container_title
             else:
-                logging.info(f"[MAIN] Tidak ada data yang di-scrape")
-                print(f"Tidak ada data yang berhasil di-scrape")
+                console.print("⚠️ [yellow]Tidak ada data yang di-scrape[/yellow]")
+                logging.info(f"⚙⠀ Tidak ada data yang di-scrape")
+                console.print(
+                    f"⚠️ [yellow]Tidak ada data yang berhasil di-scrape[/yellow]"
+                )
 
-            # Penundaan untuk stabilitas
             time.sleep(3)
 
         if urls:
@@ -628,85 +656,146 @@ def main():
                 if output_option == "1":
                     all_data = DatabaseHandler.get_all_data()
                     if all_data:
-                        DatabaseHandler.export_to_excel(all_data, processed_target_codes[0])
-                        logging.info(
-                            f"[FILE] Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx"
+                        DatabaseHandler.export_to_excel(
+                            all_data, processed_target_codes[0]
+                        )
+                        console.print(
+                            f"✅ [white]Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx[/white]"
+                        )
+                        logging.debug(
+                            f"📁⠀Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx"
                         )
                     else:
-                        logging.info("[FILE] Tidak ada data di database")
+                        console.print("⚠️ [yellow]Tidak ada data di database[/yellow]")
+                        logging.info("📁⠀Tidak ada data di database")
                 elif output_option == "2":
                     for target_code in processed_target_codes:
-                        scraped_data = DatabaseHandler.get_data_by_target_code(target_code)
+                        scraped_data = DatabaseHandler.get_data_by_target_code(
+                            target_code
+                        )
                         if scraped_data:
-                            container_title = container_titles.get(target_code, target_code)
-                            FileHandler.save_individual_files(scraped_data, target_code, container_title)
-                            logging.info(
-                                f"[FILE] Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx"
+                            container_title = container_titles.get(
+                                target_code, target_code
+                            )
+                            FileHandler.save_individual_files(
+                                scraped_data, target_code, container_title
+                            )
+                            console.print(
+                                f"✅ [white]Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx[/white]"
+                            )
+                            logging.debug(
+                                f"📁⠀Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx"
                             )
                 elif output_option == "3":
                     all_data = DatabaseHandler.get_all_data()
                     if all_data:
-                        DatabaseHandler.export_to_excel(all_data, processed_target_codes[0])
-                        logging.info(
-                            f"[FILE] Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx"
+                        DatabaseHandler.export_to_excel(
+                            all_data, processed_target_codes[0]
+                        )
+                        console.print(
+                            f"✅ [white]Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx[/white]"
+                        )
+                        logging.debug(
+                            f"📁⠀Berhasil menyimpan file database di results\\RESULT_DATABASE.xlsx"
                         )
                     for target_code in processed_target_codes:
-                        scraped_data = DatabaseHandler.get_data_by_target_code(target_code)
+                        scraped_data = DatabaseHandler.get_data_by_target_code(
+                            target_code
+                        )
                         if scraped_data:
-                            container_title = container_titles.get(target_code, target_code)
-                            FileHandler.save_individual_files(scraped_data, target_code, container_title)
-                            logging.info(
-                                f"[FILE] Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx"
+                            container_title = container_titles.get(
+                                target_code, target_code
+                            )
+                            FileHandler.save_individual_files(
+                                scraped_data, target_code, container_title
+                            )
+                            console.print(
+                                f"✅ [white]Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx[/white]"
+                            )
+                            logging.debug(
+                                f"📁⠀Berhasil menyimpan file individual di results\\{FileHandler._sanitize_filename(container_title, target_code)}.xlsx"
                             )
                 elif output_option == "4":
-                    logging.info("[MAIN] Data berhasil tersimpan di DATABASE")
+                    console.print(
+                        "✅ [white]Data berhasil tersimpan di DATABASE[/white]"
+                    )
+                    logging.debug("⚙⠀ Data berhasil tersimpan di DATABASE")
             else:
-                logging.info("[MAIN] Tidak ada data yang berhasil di-scrape dari URL manapun")
-                print("Tidak ada data yang berhasil di-scrape dari URL manapun.")
+                console.print(
+                    "⚠️ [yellow]Tidak ada data yang berhasil di-scrape dari URL manapun[/yellow]"
+                )
+                logging.debug(
+                    "⚙⠀ Tidak ada data yang berhasil di-scrape dari URL manapun"
+                )
+                console.print(
+                    "⚠️ [yellow]Tidak ada data yang berhasil di-scrape dari URL manapun.[/yellow]"
+                )
 
-        logging.info(
-            "[MAIN] Scraping selesai. Output telah diproses. Program selesai."
+        console.print(
+            "🎉 [white]Scraping selesai. Output telah diproses. Program selesai.[/white]"
         )
+        logging.debug("⚙⠀ Scraping selesai. Output telah diproses. Program selesai.")
 
     except Exception as e:
-        logging.error(f"[ERROR] Terjadi kesalahan: {str(e)}")
-        print(f"\nTerjadi kesalahan: {str(e)}")
+        console.print(f"❌⠀ [red]Terjadi kesalahan: {str(e)}[/red]")
+        logging.error(f"❌⠀ Terjadi kesalahan: {str(e)}")
         sys.exit(1)
 
 
 def print_info(info: Dict[str, str]):
-    print("\n" + "=" * 100)
-    print(" INFORMASI URL ".center(100, "x"))
-    print("=" * 100)
-    for key, value in info.items():
-        print(f" {key:<15} : {value}")
+    """Menampilkan informasi URL dengan rich"""
+    content = "\n".join(
+        f"[cyan]{key:<15}[/cyan] : [white]{value}[/white]"
+        for key, value in info.items()
+    )
+    console.print(
+        Panel(
+            content,
+            title="[bold blue]INFORMASI URL[/bold blue]",
+            border_style="cyan",
+            expand=True,
+        )
+    )
 
 
 def select_provider(providers: List[str]) -> Optional[str]:
     if not providers:
-        print("\nTidak ada provider yang tersedia.")
+        console.print("⚠️ [yellow]Tidak ada provider yang tersedia.[/yellow]")
         return None
 
-    print("\n" + "=" * 100)
-    print(" PROVIDER YANG TERSEDIA ".center(100, "x"))
-    print("=" * 100)
-    for i, provider in enumerate(providers, 1):
-        print(f" {i}. {provider}")
+    content = "\n".join(
+        f"[white]{i}. {provider}[/white]" for i, provider in enumerate(providers, 1)
+    )
+    console.print(
+        Panel(
+            content,
+            title="[bold blue]PROVIDER YANG TERSEDIA[/bold blue]",
+            border_style="cyan",
+            expand=True,
+        )
+    )
 
     try:
-        provider_input = input("Masukkan nomor provider (0 untuk semua): ").strip()
+        provider_input = console.input(
+            "Masukkan nomor provider (0 untuk semua): "
+        ).strip()
         if provider_input == "0":
             return None
         elif provider_input.isdigit():
             provider_num = int(provider_input)
             if 1 <= provider_num <= len(providers):
                 return providers[provider_num - 1]
-        print("Nomor tidak valid! Akan mengambil semua provider.")
+        console.print(
+            "⚠️ [yellow]Nomor tidak valid! Akan mengambil semua provider.[/yellow]"
+        )
         time.sleep(2)
         return None
     except Exception as e:
-        logging.error(f"[ERROR] Error memilih provider: {str(e)}")
-        print("Terjadi error! Akan mengambil semua provider.")
+        console.print(f"❌⠀ [red]Error memilih provider: {str(e)}[/red]")
+        logging.error(f"❌⠀ Error memilih provider: {str(e)}")
+        console.print(
+            "⚠️ [yellow]Terjadi error! Akan mengambil semua provider.[/yellow]"
+        )
         time.sleep(2)
         return None
 
@@ -715,17 +804,27 @@ if __name__ == "__main__":
     try:
         for ext in DEFAULT_CONFIG["extensions"]["paths"]:
             if not os.path.exists(os.path.join(ext, "manifest.json")):
-                raise FileNotFoundError(f"[ERROR] Ekstensi tidak valid di: {ext}")
+                raise FileNotFoundError(f"❌⠀ Ekstensi tidak valid di: {ext}")
 
-        print("=" * 100)
-        print(" FILECRYPT SCRAPER ".center(100, "x"))
-        print("=" * 100)
+        console.print(
+            Panel(
+                Text("FILECRYPT SCRAPER", style="bold blue", justify="center"),
+                title="",
+                border_style="cyan",
+                expand=True,
+            )
+        )
 
         main()
-        print("=" * 100)
-        print(" FILECRYPT SELESAI ".center(100, "x"))
-        print("=" * 100)
+        console.print(
+            Panel(
+                Text("FILECRYPT SELESAI", style="bold green", justify="center"),
+                title="",
+                border_style="cyan",
+                expand=True,
+            )
+        )
     except Exception as e:
-        logging.error(f"[ERROR] Error: {str(e)}")
-        print(f"\nTerjadi kesalahan: {str(e)}")
+        console.print(f"❌⠀ [red]Error: {str(e)}[/red]")
+        logging.error(f"❌⠀ Error: {str(e)}")
         sys.exit(1)

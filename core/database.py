@@ -71,7 +71,7 @@ class DatabaseHandler:
         conn.commit()
         conn.close()
         if new_items > 0:
-            logging.info(f"[DB] Disimpan {new_items} item ke database")
+            logging.info(f"📥⠀Disimpan {new_items} item ke database")
         return new_items
 
     @staticmethod

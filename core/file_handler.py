@@ -22,9 +22,11 @@ class FileHandler:
         Membersihkan nama file dan menghindari karakter tidak valid.
         Mengembalikan target_code hanya jika title benar-benar tidak valid.
         """
-        logging.debug(f"[FILE] Sanitizing title: {title}, target_code: {target_code}")
+        logging.debug(f"📁⠀ Sanitizing title: {title}, target_code: {target_code}")
         if not title or title.strip().lower() in ("n/a", "unknown", ""):
-            logging.warning(f"[FILE] Title tidak valid ({title}), menggunakan target_code: {target_code}")
+            logging.warning(
+                f"📁⠀ Title tidak valid ({title}), menggunakan target_code: {target_code}"
+            )
             return target_code if target_code else "Untitled"
 
         # Ganti karakter tidak valid, kecuali titik
@@ -35,10 +37,12 @@ class FileHandler:
         cleaned_title = cleaned_title[:max_length]
 
         if not cleaned_title:
-            logging.warning(f"[FILE] Title kosong setelah pembersihan, menggunakan target_code: {target_code}")
+            logging.warning(
+                f"📁⠀ Title kosong setelah pembersihan, menggunakan target_code: {target_code}"
+            )
             return target_code if target_code else "Untitled"
 
-        logging.debug(f"[FILE] Sanitized title: {cleaned_title}")
+        logging.debug(f"📁⠀ Sanitized title: {cleaned_title}")
         return cleaned_title
 
     @staticmethod
@@ -46,10 +50,12 @@ class FileHandler:
         return sheet.max_row <= 1
 
     @staticmethod
-    def save_individual_files(data: List[ScrapedData], target_code: str, container_title: str = None):
+    def save_individual_files(
+        data: List[ScrapedData], target_code: str, container_title: str = None
+    ):
         """Menyimpan file individual berdasarkan container_title"""
         if not data or not target_code:
-            logging.warning("[FILE] Tidak ada data atau target_code untuk disimpan")
+            logging.warning("📁⠀ Tidak ada data atau target_code untuk disimpan")
             return
 
         os.makedirs("results", exist_ok=True)
@@ -68,18 +74,27 @@ class FileHandler:
         selected_title = container_title
         if not selected_title:
             for item in data:
-                if item.container_title and item.container_title.strip().lower() not in ("n/a", "unknown", ""):
+                if (
+                    item.container_title
+                    and item.container_title.strip().lower()
+                    not in ("n/a", "unknown", "")
+                ):
                     selected_title = item.container_title
                     break
             if not selected_title:
                 for item in combined_data:
-                    if item.container_title and item.container_title.strip().lower() not in ("n/a", "unknown", ""):
+                    if (
+                        item.container_title
+                        and item.container_title.strip().lower()
+                        not in ("n/a", "unknown", "")
+                    ):
                         selected_title = item.container_title
                         break
             if not selected_title:
-                logging.warning(f"[FILE] Tidak ada container_title valid untuk target_code {target_code}, menggunakan target_code")
+                logging.warning(
+                    f"📁⠀ Tidak ada container_title valid untuk target_code {target_code}, menggunakan target_code"
+                )
                 selected_title = target_code
-
 
         # Tambahkan data baru ke combined_data
         for item in data:
@@ -100,14 +115,16 @@ class FileHandler:
                 combined_data.append(item)
 
         if not combined_data:
-            logging.warning(f"[FILE] Tidak ada data untuk disimpan untuk target_code: {target_code}")
+            logging.warning(
+                f"📁⠀ Tidak ada data untuk disimpan untuk target_code: {target_code}"
+            )
             return
 
         filename = os.path.join(
             "results",
             f"{FileHandler._sanitize_filename(selected_title, target_code)}.xlsx",
         )
-        logging.info(f"[FILE] Menyimpan file ke: {filename}")
+        logging.info(f"📁 Menyimpan file ke: {filename}")
 
         try:
             if os.path.exists(filename):
@@ -265,7 +282,7 @@ class FileHandler:
                     wb.remove(sheet)
 
             if not has_data or not wb.sheetnames:
-                logging.warning(f"[FILE] Tidak ada data untuk disimpan ke {filename}")
+                logging.warning(f"📁⠀ Tidak ada data untuk disimpan ke {filename}")
                 return
 
             if "Sheet" in wb.sheetnames:
@@ -292,4 +309,6 @@ class FileHandler:
             wb.save(filename)
 
         except Exception as e:
-            logging.error(f"[ERROR] Gagal menyimpan file individual ke {filename}: {str(e)}")
+            logging.error(
+                f"[ERROR] Gagal menyimpan file individual ke {filename}: {str(e)}"
+            )
