@@ -5,7 +5,7 @@ Modul untuk menangani operasi browser menggunakan Playwright
 from playwright.sync_api import sync_playwright
 import logging
 from typing import Optional
-from config.constants import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG
 from models.data_models import BrowserConfig
 
 

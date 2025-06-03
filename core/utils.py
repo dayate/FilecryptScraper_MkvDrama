@@ -5,7 +5,7 @@ Modul untuk utility functions
 import re
 import random
 from typing import List, Dict
-from config.constants import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG
 
 
 def clean_filename(title: str) -> str:

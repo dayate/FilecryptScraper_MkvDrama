@@ -24,7 +24,7 @@ from core.scraper import FileCryptScraper
 from core.database import DatabaseHandler
 from core.file_handler import FileHandler
 from core.logger import setup_logging
-from config.constants import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG
 
 # Inisialisasi rich console
 console = Console()

@@ -9,7 +9,7 @@ from typing import List, Optional
 from playwright.sync_api import Page
 from models.data_models import ScrapedData
 from core.database import DatabaseHandler
-from config.constants import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG
 from .logger import BatchLogger
 
 

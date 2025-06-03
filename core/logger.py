@@ -7,7 +7,7 @@ import logging
 import time
 import sys
 from datetime import datetime
-from config.constants import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 
 
