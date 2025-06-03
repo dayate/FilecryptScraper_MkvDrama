@@ -1,0 +1,51 @@
+# Virtual environment
+env/
+venv/
+ENV/
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# macOS
+.DS_Store
+
+# Pytest cache
+.pytest_cache/
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pycharm
+.idea/
+
+# Environment variable files
+.env
+
+/profile
+/archive
+/logs
+/results
+Extensions/
+
+plan.md
+core_batch.md
+new_report.md
+testing.md
+testingv2.md
+unit-test.md
+view_db.py
+two_main.py
+unit_test.md
+filecrypt_scraper.md
+list.txt
+url.txt
+tree.py
