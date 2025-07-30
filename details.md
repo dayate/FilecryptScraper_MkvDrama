@@ -2507,3 +2507,25 @@ if __name__ == "__main__":
 
 ## Perintah
 Sebagai seorang developer python profesional dan berpengalaman, lakukan breakdown dan analisa terhadap project tersebut. Berikan saran perbaikan dan pengembangan agar project memiliki penulisan kode yang rapi, simple dan tetap terstruktur agar dapat mempermudah untuk dilakukan pengelolaan dan pengembangan kedepannya. Pastikan tidak terjadi pengulangan/redundan terkait penulisan kode.
+
+
+---
+Sebelum melanjutkan perubahan ke "memusatkan logika Excel ke file_handler.py" saya ingin melakukan perubahan logika/alur jalannya program. Alur yang saya inginkan adalah sebagai berikut:
+1. Alur sebelumnya adalah kurang lebih sebagai berikut:
+   + program dijalankan
+   + program mencoba membuka url yang diberikan
+   + membuka browser secara gui(headless=False) secara langsung
+   + mengakses url
+   + melakukan cek terhadap password dan captcha
+   + melakukan scraping info dasar
+2. Alur yang saya inginkan adalah sebagai berikut:
+   + program dijalankan
+   + program mencoba membuka url yang diberikan
+   + membuka browser secara headless
+   + mengakses url
+   + melakukan cek terhadap password dan captcha
+   + jika password dan captcha ada
+     + tutup browser headless
+     + buka kembali url yang diberikan dengan browser secara gui (headless=false)
+   + jika password dan captcha tidak ada
+     + lanjutkan program sesuai dengan alur yang sudah ada
