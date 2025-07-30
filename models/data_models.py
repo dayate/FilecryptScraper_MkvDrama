@@ -7,18 +7,6 @@ from typing import Optional, Any, List, Dict
 
 
 @dataclass
-class BrowserConfig:
-    """
-    Konfigurasi untuk browser
-    """
-
-    user_data_dir: str
-    headless: bool
-    args: List[str]
-    ignore_default_args: List[str]
-
-
-@dataclass
 class ScrapedData:
     """
     Data yang di-scrape dari FileCrypt
@@ -45,9 +33,3 @@ class BatchLoggerConfig:
     total_items: int
     process_name: str = "PROCESS"
     update_interval: int = 5
-
-
-@dataclass
-class ScraperConfig:
-    batch_processing: bool = True
-    max_batch_size: int = 10  # Batas maksimal batch

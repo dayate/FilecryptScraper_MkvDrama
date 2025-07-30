@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 import logging
 from typing import Optional
 from config import DEFAULT_CONFIG
-from models.data_models import BrowserConfig
+import os
 
 
 class BrowserManager:
@@ -14,11 +14,9 @@ class BrowserManager:
     Kelas untuk mengelola browser dan konteksnya
     """
 
-    def __init__(
-        self, config: BrowserConfig = None, window_size: tuple[int, int] = None
-    ):
-        self.config = config or BrowserConfig(**DEFAULT_CONFIG["browser"])
-        self.extensions = DEFAULT_CONFIG["extensions"]
+    def __init__(self, window_size: tuple[int, int] = None):
+        self.config = DEFAULT_CONFIG.browser
+        self.extensions = DEFAULT_CONFIG.extensions
         self.context = None
         self.playwright = None
 
@@ -34,15 +32,27 @@ class BrowserManager:
 
     def launch_browser(self):
         try:
+            # --- MULAI BLOK KODE BARU ---
+            # Logika untuk mendapatkan path ekstensi, sama seperti di setup_profile.py
+            extension_folders = ["./Extensions/uBlock", "./Extensions/Adguard"]
+            extension_paths = [
+                os.path.abspath(folder)
+                for folder in extension_folders
+                if os.path.exists(os.path.abspath(folder))
+            ]
+            extensions_to_load_str = ",".join(extension_paths)
+            # Gabungkan argumen dari config dengan argumen ekstensi
+            all_args = self.config.args.copy()  # Salin argumen dasar
+            if extension_paths:
+                all_args.append(f"--disable-extensions-except={extensions_to_load_str}")
+                all_args.append(f"--load-extension={extensions_to_load_str}")
+            # --- SELESAI BLOK KODE BARU ---
+
             self.context = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=self.config.user_data_dir,
                 headless=self.config.headless,
-                viewport={"width": 500, "height": 650},
-                args=[
-                    f"--disable-extensions-except={','.join(self.extensions['paths'])}",
-                    f"--load-extension={','.join(self.extensions['paths'])}",
-                    *self.config.args,
-                ],
+                viewport={"width": 1280, "height": 720},
+                args=all_args,
                 ignore_default_args=self.config.ignore_default_args,
             )
             return self.context

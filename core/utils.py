@@ -31,7 +31,7 @@ def get_random_ua() -> str:
     Returns:
         str: Random user agent string
     """
-    return random.choice(DEFAULT_CONFIG["user_agents"])
+    return random.choice(DEFAULT_CONFIG.user_agents)
 
 
 def normalize_series_title(title: str) -> str:

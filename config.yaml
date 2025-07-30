@@ -1,0 +1,62 @@
+# Konfigurasi Browser
+browser:
+  user_data_dir: "./profile"
+  headless: false
+  args:
+    - "--disable-component-update"
+    - "--no-sandbox"
+    - "--disable-dev-shm-usage"
+    - "--disable-webgl"
+    - "--disable-blink-features=AutomationControlled"
+    - "--disable-infobars"
+  ignore_default_args:
+    - "--enable-automation"
+
+# Konfigurasi Extensions
+# PENTING: Sesuaikan path ini dengan lokasi ekstensi di sistem Anda
+extensions:
+  paths:
+    - "C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\Adguard"
+
+# Konfigurasi Logging
+logging:
+  log_dir: "logs"
+  level: "INFO"
+  format: "%(asctime)s - %(levelname)-4s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+
+# Konfigurasi Timeouts (dalam milidetik atau detik)
+timeouts:
+  selector_wait: 10000
+  popup: 5000
+  page_load: 30000
+  password_check: 5
+  captcha_check: 5
+  batch_delay: 1
+  captcha: 300
+  password: 300
+
+# Konfigurasi Provider
+providers:
+  send_aliases:
+    - "send.cm"
+    - "sendit.cloud"
+    - "send.co"
+    - "send.now"
+    - "send.com"
+    - "send.cw"
+
+# Konfigurasi Pixeldrain
+pixeldrain:
+  bypass_urls:
+    - "https://pd.cybar.xyz/CODE-FILE"
+
+# Konfigurasi Scraper
+scraper:
+  batch_processing: true
+  max_batch_size: 8
+
+# User Agents
+user_agents:
+  - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+  - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0"

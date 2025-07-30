@@ -16,14 +16,11 @@ from .logger import BatchLogger
 class FileCryptScraper:
     def __init__(self, page: Page):
         self.page = page
-        self.timeouts = DEFAULT_CONFIG["timeouts"]
-        self.providers = DEFAULT_CONFIG["providers"]
-        self.pixeldrain = DEFAULT_CONFIG["pixeldrain"]
-        self.user_agents = DEFAULT_CONFIG["user_agents"]
-        # self.scraper_config = DEFAULT_CONFIG.get(
-        #     "scraper", {"max_batch_size": 10}
-        # )  # Tambahkan default
-        self.scraper_config = DEFAULT_CONFIG["scraper"]
+        self.timeouts = DEFAULT_CONFIG.timeouts
+        self.providers = DEFAULT_CONFIG.providers
+        self.pixeldrain = DEFAULT_CONFIG.pixeldrain
+        self.user_agents = DEFAULT_CONFIG.user_agents
+        self.scraper_config = DEFAULT_CONFIG.scraper
         self.database_handler = DatabaseHandler()
         self.container_title = "N/A"
 
@@ -40,12 +37,12 @@ class FileCryptScraper:
             return True
         logging.info("🔐⠀Menunggu input password...")
         start_time = time.time()
-        timeout = self.timeouts["password"]
+        timeout = self.timeouts.password
         while self.detect_password():
             if time.time() - start_time > timeout:
                 logging.error(f"[ERROR] Timeout password setelah {timeout} detik")
                 return False
-            time.sleep(self.timeouts["password_check"])
+            time.sleep(self.timeouts.password_check)
         logging.info("🔓⠀Password berhasil ditangani")
         return True
 
@@ -62,27 +59,25 @@ class FileCryptScraper:
             return True
         logging.info("🔐⠀Menunggu penyelesaian CAPTCHA...")
         start_time = time.time()
-        timeout = self.timeouts["captcha"]
+        timeout = self.timeouts.captcha
         while self.detect_captcha():
             if time.time() - start_time > timeout:
                 logging.error(f"[ERROR] Timeout CAPTCHA setelah {timeout} detik")
                 return False
-            time.sleep(self.timeouts["captcha_check"])
+            time.sleep(self.timeouts.captcha_check)
         logging.info("🔓⠀CAPTCHA berhasil diselesaikan")
         return True
 
     def get_available_providers(self) -> List[str]:
         try:
-            self.page.wait_for_selector(
-                "tr.kwj3", timeout=self.timeouts["selector_wait"]
-            )
+            self.page.wait_for_selector("tr.kwj3", timeout=self.timeouts.selector_wait)
             rows = self.page.query_selector_all("tr.kwj3")
             providers = set()
             for row in rows:
                 provider_element = row.query_selector("td[title] a.external_link")
                 if provider_element:
                     provider = provider_element.text_content().strip().lower()
-                    if any(p in provider for p in self.providers["send_aliases"]):
+                    if any(p in provider for p in self.providers.send_aliases):
                         provider = "send"
                     providers.add(provider.capitalize())
             return sorted(providers)
@@ -97,7 +92,7 @@ class FileCryptScraper:
         """
         try:
             # Tunggu hingga elemen judul muncul
-            self.page.wait_for_selector("h2", timeout=self.timeouts["selector_wait"])
+            self.page.wait_for_selector("h2", timeout=self.timeouts.selector_wait)
             title_element = self.page.query_selector("h2")
             title = title_element.text_content().strip() if title_element else "Unknown"
             self.container_title = (
@@ -141,9 +136,7 @@ class FileCryptScraper:
     ) -> List[ScrapedData]:
         final_data = []
         try:
-            self.page.wait_for_selector(
-                "tr.kwj3", timeout=self.timeouts["selector_wait"]
-            )
+            self.page.wait_for_selector("tr.kwj3", timeout=self.timeouts.selector_wait)
             rows = self.page.query_selector_all("tr.kwj3")
             target_code = (
                 self.page.url.split("/")[-1].replace(".html", "").strip()
@@ -171,7 +164,7 @@ class FileCryptScraper:
                         if provider_element
                         else "N/A"
                     )
-                    if any(p in provider for p in self.providers["send_aliases"]):
+                    if any(p in provider for p in self.providers.send_aliases):
                         provider = "send"
                     provider = provider.capitalize()
 
@@ -239,7 +232,7 @@ class FileCryptScraper:
                 return all_items
 
             # Fase 2: Proses batch
-            batch_size = self.scraper_config["max_batch_size"]
+            batch_size = self.scraper_config.max_batch_size
             total_batches = (len(items_to_scrape) + batch_size - 1) // batch_size
             for batch_start in range(0, len(items_to_scrape), batch_size):
                 batch_end = min(batch_start + batch_size, len(items_to_scrape))
@@ -249,7 +242,7 @@ class FileCryptScraper:
                 for item in current_batch:
                     try:
                         with self.page.expect_popup(
-                            timeout=self.timeouts["popup"]
+                            timeout=self.timeouts.popup
                         ) as popup_info:
                             if item.download_button:
                                 item.download_button.click()
@@ -271,16 +264,16 @@ class FileCryptScraper:
                 for item, popup in popups:
                     try:
                         popup.wait_for_load_state(
-                            "domcontentloaded", timeout=self.timeouts["page_load"]
+                            "domcontentloaded", timeout=self.timeouts.page_load
                         )
                         item.download_url = popup.url
 
                         if "pixeldrain.com" in item.download_url.lower():
                             code = item.download_url.split("/")[-1]
                             # Gunakan URL bypass secara bergilir
-                            selected_bypass = self.pixeldrain["bypass_urls"][
+                            selected_bypass = self.pixeldrain.bypass_urls[
                                 pixeldrain_bypass_index
-                                % len(self.pixeldrain["bypass_urls"])
+                                % len(self.pixeldrain.bypass_urls)
                             ]
                             item.bypass_url = selected_bypass.replace("CODE-FILE", code)
                             pixeldrain_bypass_index += 1  # Increment indeks
@@ -300,7 +293,7 @@ class FileCryptScraper:
 
                 progress_count += len(current_batch)
                 process_logger.log_progress(min(progress_count, total_rows * 2))
-                time.sleep(self.timeouts["batch_delay"])
+                time.sleep(self.timeouts.batch_delay)
 
             process_logger.log_complete(skipped_items)
 

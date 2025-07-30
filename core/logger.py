@@ -64,29 +64,29 @@ def setup_logging() -> str:
     """
     Setup logging configuration
     """
-    log_config = DEFAULT_CONFIG["logging"]
-    os.makedirs(log_config["log_dir"], exist_ok=True)
-    log_filename = datetime.now().strftime(f"{log_config['log_dir']}/%Y-%m-%d.log")
+    log_config = DEFAULT_CONFIG.logging
+    os.makedirs(log_config.log_dir, exist_ok=True)
+    log_filename = datetime.now().strftime(f"{log_config.log_dir}/%Y-%m-%d.log")
 
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
     file_formatter = logging.Formatter(
-        fmt=log_config["format"], datefmt=log_config["datefmt"]
+        fmt=log_config.format, datefmt=log_config.datefmt
     )
 
     console_formatter = logging.Formatter(fmt="%(message)s")
 
     file_handler = logging.FileHandler(log_filename, encoding="utf-8")
-    file_handler.setLevel(log_config["level"])
+    file_handler.setLevel(log_config.level)
     file_handler.setFormatter(file_formatter)
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_config["level"])
+    console_handler.setLevel(log_config.level)
     console_handler.setFormatter(console_formatter)
 
     logging.basicConfig(
-        level=log_config["level"],
+        level=log_config.level,
         handlers=[file_handler, console_handler],
     )
 

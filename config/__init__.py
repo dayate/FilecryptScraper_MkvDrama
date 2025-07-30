@@ -2,6 +2,7 @@
 Package untuk konfigurasi aplikasi
 """
 
-from .env_config import DEFAULT_CONFIG, get_config
+# Ubah impor dari env_config ke settings
+from .settings import DEFAULT_CONFIG
 
-__all__ = ["DEFAULT_CONFIG", "get_config"]
+__all__ = ["DEFAULT_CONFIG"]

@@ -67,7 +67,7 @@ def get_valid_url() -> str:
     while True:
         try:
             url = console.input("Masukkan URL: ").strip()
-            if url.startswith("https://filecrypt.co/Container/") and url.endswith(
+            if url.startswith("https://www.filecrypt.cc/Container/") and url.endswith(
                 ".html"
             ):
                 return url
@@ -101,9 +101,9 @@ def get_urls_from_file() -> List[str]:
         with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
                 url = line.strip()
-                if url.startswith("https://filecrypt.co/Container/") and url.endswith(
-                    ".html"
-                ):
+                if url.startswith(
+                    "https://www.filecrypt.cc/Container/"
+                ) and url.endswith(".html"):
                     valid_urls.append(url)
                 else:
                     logging.warning(f"[WARNING] URL tidak valid di file: {url}")
@@ -802,7 +802,7 @@ def select_provider(providers: List[str]) -> Optional[str]:
 
 if __name__ == "__main__":
     try:
-        for ext in DEFAULT_CONFIG["extensions"]["paths"]:
+        for ext in DEFAULT_CONFIG.extensions.paths:
             if not os.path.exists(os.path.join(ext, "manifest.json")):
                 raise FileNotFoundError(f"❌⠀ Ekstensi tidak valid di: {ext}")
 

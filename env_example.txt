@@ -2,11 +2,11 @@
 BROWSER_USER_DATA_DIR=./profile
 BROWSER_HEADLESS=False
 BROWSER_ARGS=--disable-component-update,--no-sandbox,--disable-dev-shm-usage,--disable-webgl,--disable-blink-features=AutomationControlled,--disable-infobars
-BROWSER_IGNORE_DEFAULT_ARGS=--enable-automation,--disable-extensions
+BROWSER_IGNORE_DEFAULT_ARGS=--enable-automation
 
 # Konfigurasi Extensions
 # PENTING: Sesuaikan path ini dengan lokasi ekstensi di sistem Anda
-EXTENSIONS_PATHS=C:\\Users\\username\\FilecryptScraper_MkvDrama\\Extensions\\uBlock
+EXTENSIONS_PATHS='["C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\Adguard"]'
 
 # Konfigurasi Logging
 LOG_DIR=logs
@@ -25,13 +25,13 @@ TIMEOUT_CAPTCHA=300
 TIMEOUT_PASSWORD=300
 
 # Konfigurasi Provider
-SEND_ALIASES=send.cm,sendit.cloud,send.co,send.now,send.com,send.cw
+SEND_ALIASES='["send.cm", "sendit.cloud", "send.co", "send.now"]'
 
 # Konfigurasi Pixeldrain
-PIXELDRAIN_BYPASS_URLS=https://cdn.pd1.workers.dev/api/file/CODE-FILE,https://cdn.pd7.workers.dev/api/file/CODE-FILE,https://cdn.pd8.workers.dev/api/file/CODE-FILE,https://cdn.pd10.workers.dev/api/file/CODE-FILE
+PIXELDRAIN_BYPASS_URLS='["https://pd.cybar.xyz/CODE-FILE"]'
 
 # User Agents
-USER_AGENTS=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36,Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0
+USER_AGENTS='["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0"]'
 
 # Konfigurasi Scraper
 SCRAPER_BATCH_PROCESSING=True
