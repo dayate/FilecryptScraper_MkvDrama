@@ -51,7 +51,7 @@ class BrowserManager:
             self.context = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=self.config.user_data_dir,
                 headless=self.config.headless,
-                viewport={"width": 1280, "height": 720},
+                viewport={"width": 500, "height": 650},
                 args=all_args,
                 ignore_default_args=self.config.ignore_default_args,
             )
