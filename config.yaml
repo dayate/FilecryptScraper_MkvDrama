@@ -16,7 +16,7 @@ browser:
 # PENTING: Sesuaikan path ini dengan lokasi ekstensi di sistem Anda
 extensions:
   paths:
-    - "C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\uBlock"
+    - "C:\\Users\\username\\Extensions\\uBlock"
 
 # Konfigurasi Logging
 logging:
@@ -54,9 +54,8 @@ pixeldrain:
 # Konfigurasi Scraper
 scraper:
   batch_processing: true
-  max_batch_size: 8
+  max_batch_size: 5
 
 # User Agents
 user_agents:
   - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
-  - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0"
