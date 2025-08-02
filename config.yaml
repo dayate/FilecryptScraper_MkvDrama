@@ -16,7 +16,7 @@ browser:
 # PENTING: Sesuaikan path ini dengan lokasi ekstensi di sistem Anda
 extensions:
   paths:
-    - "C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\Adguard"
+    - "C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\uBlock"
 
 # Konfigurasi Logging
 logging:

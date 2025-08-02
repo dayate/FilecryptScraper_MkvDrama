@@ -34,7 +34,7 @@ class BrowserManager:
         try:
             # --- MULAI BLOK KODE BARU ---
             # Logika untuk mendapatkan path ekstensi, sama seperti di setup_profile.py
-            extension_folders = ["./Extensions/uBlock", "./Extensions/Adguard"]
+            extension_folders = ["./Extensions/uBlock"]
             extension_paths = [
                 os.path.abspath(folder)
                 for folder in extension_folders
