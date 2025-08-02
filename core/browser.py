@@ -32,21 +32,30 @@ class BrowserManager:
 
     def launch_browser(self):
         try:
-            # --- MULAI BLOK KODE BARU ---
-            # Logika untuk mendapatkan path ekstensi, sama seperti di setup_profile.py
-            extension_folders = ["./Extensions/uBlock"]
+            # --- MULAI BLOK KODE YANG DIPERBAIKI ---
+            # Mengambil path ekstensi dari konfigurasi yang dimuat (config.yaml)
             extension_paths = [
-                os.path.abspath(folder)
-                for folder in extension_folders
-                if os.path.exists(os.path.abspath(folder))
+                os.path.abspath(path)
+                for path in self.extensions.paths
+                if os.path.exists(os.path.abspath(path))
             ]
+
+            # Memberi peringatan jika path di config.yaml ada tapi tidak ditemukan di sistem
+            if not extension_paths and self.extensions.paths:
+                logging.warning(
+                    f"[WARNING] Path ekstensi yang dikonfigurasi di 'config.yaml' tidak dapat ditemukan: {self.extensions.paths}"
+                )
+
             extensions_to_load_str = ",".join(extension_paths)
-            # Gabungkan argumen dari config dengan argumen ekstensi
-            all_args = self.config.args.copy()  # Salin argumen dasar
+
+            # Salin argumen dasar dari config
+            all_args = self.config.args.copy()
+
+            # Jika ada ekstensi yang valid, tambahkan argumen yang diperlukan ke browser
             if extension_paths:
                 all_args.append(f"--disable-extensions-except={extensions_to_load_str}")
                 all_args.append(f"--load-extension={extensions_to_load_str}")
-            # --- SELESAI BLOK KODE BARU ---
+            # --- SELESAI BLOK KODE YANG DIPERBAIKI ---
 
             self.context = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=self.config.user_data_dir,
