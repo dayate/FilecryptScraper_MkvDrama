@@ -50,6 +50,7 @@ class PixeldrainSettings(BaseModel):
 class ScraperSettings(BaseModel):
     batch_processing: bool = True
     max_batch_size: int = 8
+    valid_urls: List[str] = []
 
 
 class AppSettings(BaseModel):

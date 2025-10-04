@@ -24,7 +24,7 @@ from core.scraper import FileCryptScraper
 from core.database import DatabaseHandler
 from core.file_handler import FileHandler
 from core.logger import setup_logging
-from config import DEFAULT_CONFIG
+from config.settings import DEFAULT_CONFIG
 
 # Inisialisasi rich console
 console = Console()
@@ -63,21 +63,34 @@ def select_input_method() -> str:
 
 
 def get_valid_url() -> str:
-    """Meminta satu URL valid dari pengguna"""
+    """Meminta satu URL valid dari pengguna berdasarkan pola yang ada di config."""
+    valid_patterns = DEFAULT_CONFIG.scraper.valid_urls
+    if not valid_patterns:
+        console.print(
+            "[bold red]⚠️ Error: Tidak ada URL valid yang dikonfigurasi di 'config.yaml'.[/bold red]"
+        )
+        return ""
+
     while True:
         try:
             url = console.input("Masukkan URL: ").strip()
-            if url.startswith("https://www.filecrypt.cc/Container/") and url.endswith(
-                ".html"
-            ):
+            # Memeriksa apakah URL cocok dengan salah satu pola valid dan diakhiri dengan .html
+            if any(
+                url.startswith(pattern) for pattern in valid_patterns
+            ) and url.endswith(".html"):
                 return url
             console.print(
-                "⚠️ [yellow]URL tidak valid! Harap masukkan URL FileCrypt yang benar.[/yellow]"
+                "⚠️ [yellow]URL tidak valid! Harap masukkan URL yang benar.[/yellow]"
             )
-        except Exception as e:
-            logging.error(f"❌⠀ Error memasukkan URL: {str(e)}")
+        except (KeyboardInterrupt, EOFError):
             console.print(
-                f"❌⠀ [red]Terjadi error! Harap masukkan URL yang valid.[/red]"
+                "\n [bold yellow]Proses dibatalkan oleh pengguna.[/bold yellow]"
+            )
+            return ""
+        except Exception as e:
+            logging.error(f"❌ Error saat memasukkan URL: {str(e)}")
+            console.print(
+                f"❌ [red]Terjadi error! Harap masukkan URL yang valid.[/red]"
             )
         time.sleep(1)
 
@@ -97,12 +110,13 @@ def get_urls_from_file() -> List[str]:
         sys.exit(1)
 
     valid_urls = []
+    valid_patterns = DEFAULT_CONFIG.scraper.valid_urls
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
                 url = line.strip()
-                if url.startswith(
-                    "https://www.filecrypt.cc/Container/"
+                if any(
+                    url.startswith(pattern) for pattern in valid_patterns
                 ) and url.endswith(".html"):
                     valid_urls.append(url)
                 else:

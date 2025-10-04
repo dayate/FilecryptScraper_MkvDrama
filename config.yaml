@@ -16,7 +16,7 @@ browser:
 # PENTING: Sesuaikan path ini dengan lokasi ekstensi di sistem Anda
 extensions:
   paths:
-    - "C:\\Users\\txxfxxk\\Project\\FilecryptScraper_MkvDrama\\Extensions\\Adguard"
+    - "D:\\01_Development\\04_Tools\\FilecryptScraper_MkvDrama\\Extensions\\uBlock"
 
 # Konfigurasi Logging
 logging:
@@ -55,6 +55,9 @@ pixeldrain:
 scraper:
   batch_processing: true
   max_batch_size: 5
+  valid_urls:
+    - "https://filecrypt.cc/Container/"
+    - "https://www.filecrypt.cc/Container/"
 
 # User Agents
 user_agents:
