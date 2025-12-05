@@ -77,7 +77,7 @@ def get_valid_url() -> str:
             # Memeriksa apakah URL cocok dengan salah satu pola valid dan diakhiri dengan .html
             if any(
                 url.startswith(pattern) for pattern in valid_patterns
-            ) and url.endswith(".html"):
+            ):
                 return url
             console.print(
                 "⚠️ [yellow]URL tidak valid! Harap masukkan URL yang benar.[/yellow]"
@@ -117,7 +117,7 @@ def get_urls_from_file() -> List[str]:
                 url = line.strip()
                 if any(
                     url.startswith(pattern) for pattern in valid_patterns
-                ) and url.endswith(".html"):
+                ):
                     valid_urls.append(url)
                 else:
                     logging.warning(f"[WARNING] URL tidak valid di file: {url}")
@@ -163,7 +163,7 @@ def select_output_option() -> str:
 
 def process_single_url(url: str) -> tuple[List, str]:
     """Memproses scraping untuk satu URL, mengembalikan scraped_data dan container_title"""
-    target_code = url.split("/")[-1].replace(".html", "")
+    target_code = url.strip("/").split("/")[-1].replace(".html", "")
     logging.info(f"⚙⠀ Memulai proses untuk target_code: {target_code}")
 
     with BrowserManager() as browser_manager:
@@ -201,25 +201,17 @@ def process_single_url(url: str) -> tuple[List, str]:
             if not scraper.handle_captcha():
                 raise RuntimeError("Gagal menangani CAPTCHA")
 
-            title, total_size = scraper.get_additional_info()
+            title, total_episodes = scraper.get_additional_info()
             container_title = (
                 title
                 if title and title.strip().lower() not in ("n/a", "unknown", "")
                 else target_code
             )
 
-            online_count = sum(
-                1
-                for row in scraper.page.query_selector_all("tr.kwj3")
-                if row.query_selector("td.status i")
-                and "online" in row.query_selector("td.status i").get_attribute("class")
-            )
-            total_count = len(scraper.page.query_selector_all("tr.kwj3"))
             print_info(
                 {
                     "Judul": title,
-                    "Status URL": f"{online_count}/{total_count} Online",
-                    "Total Size": total_size,
+                    "Total Episode": total_episodes,
                     "Target Code": target_code,
                 }
             )
@@ -652,7 +644,7 @@ def main():
                 if new_items == 0:
                     console.print("⚠️ [yellow]Tidak ada item baru[/yellow]")
                     logging.debug(f"⚙⠀ Tidak ada item baru")
-                target_code = url.split("/")[-1].replace(".html", "")
+                target_code = url.strip("/").split("/")[-1].replace(".html", "")
                 processed_target_codes.append(target_code)
                 container_titles[target_code] = container_title
             else:

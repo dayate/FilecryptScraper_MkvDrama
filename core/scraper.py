@@ -70,16 +70,21 @@ class FileCryptScraper:
 
     def get_available_providers(self) -> List[str]:
         try:
-            self.page.wait_for_selector("tr.kwj3", timeout=self.timeouts.selector_wait)
-            rows = self.page.query_selector_all("tr.kwj3")
+            # Tunggu elemen select provider muncul
+            self.page.wait_for_selector("select#x_h", timeout=self.timeouts.selector_wait)
+            select_element = self.page.query_selector("select#x_h")
+
             providers = set()
-            for row in rows:
-                provider_element = row.query_selector("td[title] a.external_link")
-                if provider_element:
-                    provider = provider_element.text_content().strip().lower()
-                    if any(p in provider for p in self.providers.send_aliases):
-                        provider = "send"
-                    providers.add(provider.capitalize())
+            if select_element:
+                options = select_element.query_selector_all("option")
+                for option in options:
+                    provider_text = option.text_content().strip()
+                    # Abaikan opsi default seperti "Select Provider" atau yang kosong
+                    if not provider_text or "select" in provider_text.lower():
+                        continue
+
+                    providers.add(provider_text)
+
             return sorted(providers)
         except Exception as e:
             logging.error(f"[ERROR] Gagal mendapatkan provider: {str(e)}")
@@ -87,13 +92,13 @@ class FileCryptScraper:
 
     def get_additional_info(self) -> tuple[str, str]:
         """
-        Mengambil judul dan total ukuran dari halaman
-        Mengembalikan (judul, total_size)
+        Mengambil judul dan total episode dari halaman
+        Mengembalikan (judul, total_episodes)
         """
         try:
             # Tunggu hingga elemen judul muncul
-            self.page.wait_for_selector("h2", timeout=self.timeouts.selector_wait)
-            title_element = self.page.query_selector("h2")
+            self.page.wait_for_selector("h1#x_t", timeout=self.timeouts.selector_wait)
+            title_element = self.page.query_selector("h1#x_t")
             title = title_element.text_content().strip() if title_element else "Unknown"
             self.container_title = (
                 title
@@ -101,33 +106,20 @@ class FileCryptScraper:
                 else "Unknown"
             )
 
-            # Hitung total ukuran dari kolom ukuran di tabel
-            total_size = 0.0
-            size_unit = "GB"
-            rows = self.page.query_selector_all("tr.kwj3")
-            for row in rows:
-                size_element = row.query_selector("td:nth-of-type(3)")
-                if size_element:
-                    size_text = size_element.text_content().strip()
-                    match = re.match(
-                        r"(\d+\.?\d*)\s*(GB|MB|KB)", size_text, re.IGNORECASE
-                    )
-                    if match:
-                        size_value = float(match.group(1))
-                        unit = match.group(2).upper()
-                        if unit == "MB":
-                            size_value /= 1024  # Konversi ke GB
-                        elif unit == "KB":
-                            size_value /= 1024 * 1024  # Konversi ke GB
-                        total_size += size_value
-            total_size = round(total_size, 2)
-            total_size_str = f"{total_size} GB" if total_size > 0 else "N/A"
+            # Hitung total episode dari jumlah option di select#x_e
+            total_episodes = 0
+            select_element = self.page.query_selector("select#x_e")
+            if select_element:
+                options = select_element.query_selector_all("option")
+                total_episodes = max(0, len(options) - 1)
 
-            return self.container_title, total_size_str
+            total_episodes_str = f"{total_episodes} Episode"
+
+            return self.container_title, total_episodes_str
         except Exception as e:
             logging.debug(f"[MAIN] Gagal mengambil info tambahan: {str(e)}")
             self.container_title = "Unknown"
-            return "Unknown", "N/A"
+            return "Unknown", "0 Episode"
 
     def scrape_file_info(
         self,
@@ -139,7 +131,7 @@ class FileCryptScraper:
             self.page.wait_for_selector("tr.kwj3", timeout=self.timeouts.selector_wait)
             rows = self.page.query_selector_all("tr.kwj3")
             target_code = (
-                self.page.url.split("/")[-1].replace(".html", "").strip()
+                self.page.url.strip("/").split("/")[-1].replace(".html", "").strip()
                 if self.page.url
                 else "unknown"
             )

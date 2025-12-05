@@ -58,6 +58,7 @@ scraper:
   valid_urls:
     - "https://filecrypt.cc/Container/"
     - "https://www.filecrypt.cc/Container/"
+    - "https://viewcrate.cc/c/"
 
 # User Agents
 user_agents:
