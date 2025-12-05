@@ -49,7 +49,7 @@ providers:
 # Konfigurasi Pixeldrain
 pixeldrain:
   bypass_urls:
-    - "https://pd.cybar.xyz/CODE-FILE"
+    - "https://pd.1drv.eu.org/CODE-FILE"
 
 # Konfigurasi Scraper
 scraper:
